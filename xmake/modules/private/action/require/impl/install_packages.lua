@@ -359,6 +359,7 @@ end
 
 -- install packages
 function _install_packages(packages_install, packages_download, installdeps)
+    print("_install_packages ..")
 
     -- we need hide wait characters if is not a tty
     local show_wait = io.isatty()
@@ -426,6 +427,7 @@ function _install_packages(packages_install, packages_download, installdeps)
                 end
             end
             if instance == nil and #packages_pending > 0 then
+                print("packages_pending", #packages_pending, working_count, installing_count)
                 scheduler.co_yield()
             end
         end
@@ -650,6 +652,7 @@ function main(requires, opt)
     -- save terminal mode for stdout
     local term_mode_stdout = tty.term_mode("stdout")
 
+    print("_fetch_packages ..")
     -- fetch and register packages (with system) from local first
     local packages_fetch = {}
     for _, instance in ipairs(packages) do
@@ -661,6 +664,7 @@ function main(requires, opt)
     end
     _fetch_packages(packages_fetch, installdeps)
 
+    print("register_packages ..")
     -- register all installed root packages to local cache
     register_packages(packages)
 
@@ -760,9 +764,11 @@ function main(requires, opt)
     -- sort package urls
     _sort_packages_urls(packages_download)
 
+    print("install ..")
     -- install all required packages from repositories
     _install_packages(packages_install, packages_download, installdeps)
 
+    print("install ok")
     -- disable other packages in same group
     _disable_other_packages_in_group(packages)
 
