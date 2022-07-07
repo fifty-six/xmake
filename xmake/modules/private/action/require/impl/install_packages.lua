@@ -389,11 +389,13 @@ function _install_packages(packages_install, packages_download, installdeps)
         while instance == nil and #packages_pending > 0 do
             for idx, pkg in ipairs(packages_pending) do
 
+                print("fetch pkg ", idx, pkg:name())
                 -- all dependences has been installed? we install it now
                 local ready = true
                 local dep_not_found = nil
                 for _, dep in pairs(installdeps[tostring(pkg)]) do
                     local installed = packages_installed[tostring(dep)]
+                    print("  > dep", dep:name(), installed, dep:exists(), dep:is_optional())
                     if installed == false or (installed == nil and not dep:exists() and not dep:is_optional()) then
                         ready = false
                         dep_not_found = dep
@@ -412,6 +414,7 @@ function _install_packages(packages_install, packages_download, installdeps)
                         ready = false
                     end
                 end
+                print("pkg: %s, ready: %s, dep_not_found: %s", pkg:name(), ready, dep_not_found and dep_not_found:name() and "nil")
 
                 -- get a package with the ready status
                 if ready then
@@ -423,6 +426,8 @@ function _install_packages(packages_install, packages_download, installdeps)
                         raise("package(%s): cannot be installed, there are dependencies(%s) that cannot be installed!", pkg:displayname(), dep_not_found:displayname())
                     elseif #packages_pending == 1 then
                         raise("package(%s): cannot be installed!", pkg:displayname())
+                    else
+                        print("working_count: ", working_count)
                     end
                 end
             end
