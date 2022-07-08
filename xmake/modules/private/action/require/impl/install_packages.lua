@@ -688,6 +688,7 @@ function main(requires, opt)
     local packages_unknown = {}
     for _, instance in ipairs(packages) do
         if package.should_install(instance) then
+            print("   should_install", instance:name(), instance:is_supported(), instance:exists())
             if instance:is_supported() then
                 if #instance:urls() > 0 then
                     packages_download[tostring(instance)] = instance
@@ -702,12 +703,21 @@ function main(requires, opt)
             end
         -- @see https://github.com/xmake-io/xmake/issues/2050
         elseif not instance:exists() and not instance:is_optional() then
+            print("1111", instance:name())
             local requireinfo = instance:requireinfo()
             if requireinfo and requireinfo.system then
                 table.insert(packages_not_found, instance)
             end
+        else
+            print("2222", instance:name())
         end
     end
+
+    print("install packages")
+    for _, instance in ipairs(packages_install) do
+        print("   > install %s", instance:name())
+    end
+
 
     local has_errors = false
 

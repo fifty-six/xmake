@@ -947,22 +947,27 @@ end
 
 -- this package should be install?
 function should_install(package)
+        print("should_install -----", package:name())
     if package:is_template() or package:exists() then
+        print("  should_install 111")
         return false
     end
     -- we need not install it if this package need only be fetched
     if package:is_fetchonly() then
+        print("  should_install 222")
         return false
     end
     -- only get system package? e.g. add_requires("xxx", {system = true})
     local requireinfo = package:requireinfo()
     if requireinfo and requireinfo.system then
+        print("  should_install 333")
         return false
     end
     if package:parents() then
         -- if all the packages that depend on it already exist, then there is no need to install it
         for _, parent in pairs(package:parents()) do
             if should_install(parent) and not parent:exists() then
+            print("  should_install 555")
                 return true
             end
 
@@ -977,10 +982,13 @@ function should_install(package)
                 if requireinfo.optional then
                     requireinfo.optional = nil
                 end
+            print("  should_install 666")
                 return true
             end
+            print("  should_install 888")
         end
     else
+            print("  should_install 777")
         return true
     end
 end
