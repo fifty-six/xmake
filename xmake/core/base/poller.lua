@@ -67,7 +67,6 @@ end
 
 -- insert object events to poller
 function poller:insert(obj, events, udata)
-    print("poller: insert", obj)
 
     -- insert it
     local ok, errors = io.poller_insert(obj:otype(), obj:cdata(), events)
@@ -82,7 +81,6 @@ end
 
 -- modify object events in poller
 function poller:modify(obj, events, udata)
-    print("poller: modify", obj)
 
     -- modify it
     local ok, errors = io.poller_modify(obj:otype(), obj:cdata(), events)
@@ -97,7 +95,6 @@ end
 
 -- remove object from poller
 function poller:remove(obj)
-    print("poller: remove", obj)
 
     -- remove it
     local ok, errors = io.poller_remove(obj:otype(), obj:cdata())
@@ -113,7 +110,6 @@ end
 -- wait object events in poller
 function poller:wait(timeout)
 
-    print("poller:wait ..", timeout)
     -- wait it
     local events, count = io.poller_wait(timeout or -1)
     if count < 0 then
@@ -141,7 +137,6 @@ function poller:wait(timeout)
             table.insert(results, {obj, events, pollerdata[2]})
         end
     end
-    print("poller:wait ok", count)
     return count, results
 end
 

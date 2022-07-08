@@ -258,6 +258,7 @@ end
 
 -- fetch packages
 function _fetch_packages(packages_fetch, installdeps)
+    print("_fetch_packages ..")
 
     -- init installed packages
     local packages_fetched = {}
@@ -281,17 +282,20 @@ function _fetch_packages(packages_fetch, installdeps)
         while instance == nil and #packages_pending > 0 do
             for idx, pkg in ipairs(packages_pending) do
 
+                print("fetch pkg: ", pkg:name())
                 -- all dependences has been fetched? we fetch it now
                 local ready = true
                 local dep_not_ready = nil
                 for _, dep in pairs(installdeps[tostring(pkg)]) do
                     local fetched = packages_fetched[tostring(dep)]
+                    print("  > dep: ", dep:name(), fetched)
                     if fetched == false then
                         ready = false
                         dep_not_ready = dep
                         break
                     end
                 end
+                print("ready: ", ready, dep_not_ready and dep_not_ready:name() or "nil")
 
                 -- get a package with the ready status
                 if ready then
@@ -307,6 +311,7 @@ function _fetch_packages(packages_fetch, installdeps)
                 end
             end
             if instance == nil and #packages_pending > 0 then
+                print("fetch working_count %s packages_pending: %s", working_count, #packages_pending)
                 scheduler.co_yield()
             end
         end
@@ -326,12 +331,14 @@ function _fetch_packages(packages_fetch, installdeps)
             end
             fetching_count = fetching_count + 1
 
+            print("fetch instance %s", instance:name())
             -- fetch this package
             packages_fetching[index] = instance
             local oldenvs = os.getenvs()
             instance:envs_enter()
             instance:fetch()
             os.setenvs(oldenvs)
+            print("fetch instance %s exists: %s", instance:name(), instance:exists())
 
             -- fix terminal mode to avoid some subprocess to change it
             --
@@ -389,13 +396,13 @@ function _install_packages(packages_install, packages_download, installdeps)
         while instance == nil and #packages_pending > 0 do
             for idx, pkg in ipairs(packages_pending) do
 
-                print("fetch pkg ", idx, pkg:name())
+                print("install pkg ", idx, pkg:name())
                 -- all dependences has been installed? we install it now
                 local ready = true
                 local dep_not_found = nil
                 for _, dep in pairs(installdeps[tostring(pkg)]) do
                     local installed = packages_installed[tostring(dep)]
-                    print("  > dep", dep:name(), installed, dep:exists(), dep:is_optional())
+                    print("  > dep", dep:name(), tostring(installed), tostring(dep:exists()), dep:is_optional())
                     if installed == false or (installed == nil and not dep:exists() and not dep:is_optional()) then
                         ready = false
                         dep_not_found = dep
@@ -414,7 +421,7 @@ function _install_packages(packages_install, packages_download, installdeps)
                         ready = false
                     end
                 end
-                print("pkg: %s, ready: %s, dep_not_found: %s", pkg:name(), ready, dep_not_found and dep_not_found:name() and "nil")
+                print("pkg: %s, ready: %s, dep_not_found: %s", pkg:name(), tostring(ready), dep_not_found and tostring(dep_not_found:name()) or "nil")
 
                 -- get a package with the ready status
                 if ready then
